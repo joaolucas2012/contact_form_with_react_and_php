@@ -1,6 +1,9 @@
 import React, { Component } from "react";
+import axios from "axios";
 import "./App.css";
 
+const API_PATH =
+  "http://localhost/contact_form_with_react_and_php/api/contact/index.php";
 class App extends Component {
   constructor(props) {
     super(props);
@@ -9,13 +12,26 @@ class App extends Component {
       lname: "",
       email: "",
       message: "",
+      mailSent: false,
+      error: null,
     };
   }
 
-  handleFormSubmit(event) {
-    event.preventDefault();
-    console.log(this.state);
-  }
+  handleFormSubmit = (e) => {
+    e.preventDefault();
+    axios({
+      method: "post",
+      url: `${API_PATH}`,
+      headers: { "content-type": "application/json" },
+      data: this.state,
+    })
+      .then((result) => {
+        this.setState({
+          mailSent: result.data.sent,
+        });
+      })
+      .catch((error) => this.setState({ error: error.message }));
+  };
 
   render() {
     return (
@@ -65,6 +81,10 @@ class App extends Component {
               onClick={(e) => this.handleFormSubmit(e)}
               value="Submit"
             />
+
+            <div>
+              {this.state.mailSent && <div>Thank you for contacting us.</div>}
+            </div>
           </form>
         </div>
       </div>
